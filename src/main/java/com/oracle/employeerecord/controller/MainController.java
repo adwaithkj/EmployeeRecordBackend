@@ -25,9 +25,11 @@ public class MainController {
 
     @PostMapping(path = "/add")
     public @ResponseBody String addNewEmp(@RequestParam String username,
-            @RequestParam String password) {
+            @RequestParam String password, @RequestParam String name) {
+        System.out.println(username + " " + password);
 
         Employee e = new Employee();
+        e.setName(name);
         e.setUsername(username);
         e.setPassword(password);
 
