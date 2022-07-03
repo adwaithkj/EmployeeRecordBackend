@@ -3,21 +3,23 @@
   <title>hello world page</title>
   <head>
     <link rel="stylesheet" href="/module.index.html.css" />
+    <script src="ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/script.js"></script>
   </head>
   <body>
     This is the templates folder
     <div class="login-page">
       <div class="form">
-        <form class="register-form" action="employees/login">
+        <form class="register-form" action="employees/signup">
           <input type="text" placeholder="name" />
           <input type="password" placeholder="password" />
           <input type="text" placeholder="email address" />
           <button>create</button>
           <p class="message">Already registered? <a href="#">Sign In</a></p>
         </form>
-        <form class="login-form">
-          <input type="text" placeholder="username" />
-          <input type="password" placeholder="password" />
+        <form class="login-form" action="login/auth" method="post">
+          <input type="text" placeholder="username" id="username" />
+          <input type="password" placeholder="password" id="password" />
           <button>login</button>
           <p class="message">
             Not registered? <a href="#">Create an account</a>

@@ -2,6 +2,7 @@ package com.oracle.employeerecord.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,12 +24,11 @@ public class MainController {
     private EmpRepo empRepo;
 
     @PostMapping(path = "/add")
-    public @ResponseBody String addNewEmp(@RequestParam String name, @RequestParam Long id,
+    public @ResponseBody String addNewEmp(@RequestParam String username,
             @RequestParam String password) {
 
         Employee e = new Employee();
-        e.setName(name);
-        e.setId(id);
+        e.setUsername(username);
         e.setPassword(password);
 
         empRepo.save(e);
@@ -45,6 +45,9 @@ public class MainController {
     @RequestMapping("/login/auth")
     @ResponseBody
     public String auth(@RequestBody LoginReq loginReq) {
+        Assert.notNull(loginReq.getUsername(), "the username must not be empty");
+        Assert.notNull(loginReq.getPassword(), "the password must not be empty");
+
         System.out.println(loginReq.getUsername() + " " + loginReq.getPassword());
 
         return "auth successful";
