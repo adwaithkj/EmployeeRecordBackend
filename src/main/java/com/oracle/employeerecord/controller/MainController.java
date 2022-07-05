@@ -1,5 +1,6 @@
 package com.oracle.employeerecord.controller;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.sym.Name;
+import com.oracle.employeerecord.model.ERole;
 import com.oracle.employeerecord.model.Employee;
+import com.oracle.employeerecord.model.Role;
 import com.oracle.employeerecord.payload.LoginReq;
 import com.oracle.employeerecord.payload.SignupReq;
 import com.oracle.employeerecord.repo.EmpRepo;
+import com.oracle.employeerecord.repo.RoleRepo;
 
 @Controller
 @RequestMapping("/employees")
 public class MainController {
     @Autowired
     private EmpRepo empRepo;
+
+    @Autowired
+    private RoleRepo roleRepo;
 
     @RequestMapping(path = "/addrole")
     public @ResponseBody String setrole() {
@@ -45,8 +52,36 @@ public class MainController {
         e.setName(signupReq.getName());
         e.setPassword(signupReq.getPassword());
         e.setUsername(signupReq.getUsername());
-        System.out.println(signupReq.getRole());
-        Set<String> role = signupReq.getRole();
+        // System.out.println(signupReq.getRole());
+
+        Set<String> strRole = signupReq.getRole();
+        Set<Role> roles = new HashSet<>();
+
+        if (strRole == null) { // assigns default role employee if no role is set
+            Role empRole = roleRepo.findByName(ERole.EMPLOYEE).get();
+            System.out.println(empRole.getName());
+            roles.add(empRole);
+        } else {
+            strRole.forEach(role -> {
+                switch (role) {
+                    case "admin":
+                        Role adminRole = roleRepo.findByName(ERole.ADMIN).get();
+                        roles.add(adminRole);
+
+                    case "manager":
+                        Role managerRole = roleRepo.findByName(ERole.MANAGER).get();
+                        roles.add(managerRole);
+
+                    default:
+                        Role empRole = roleRepo.findByName(ERole.EMPLOYEE).get();
+                        roles.add(empRole);
+
+                }
+            }
+
+            );
+        }
+        e.setRoles(roles);
 
         empRepo.save(e);
         return "signed up";
