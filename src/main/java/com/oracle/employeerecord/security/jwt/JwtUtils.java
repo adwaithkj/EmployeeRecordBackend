@@ -2,22 +2,24 @@ package com.oracle.employeerecord.security.jwt;
 
 import java.util.Date;
 
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import com.oracle.employeerecord.security.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 
+@Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
     @Value("${emprecord.app.jwtSecret")
     private String jwtSecret;
 
-    @Value("${emprecord.app.jwtExpirationsMs}")
+    @Value("${emprecord.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication) {
