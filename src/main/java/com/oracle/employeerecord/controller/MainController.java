@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,11 @@ import com.oracle.employeerecord.payload.LoginReq;
 import com.oracle.employeerecord.payload.SignupReq;
 import com.oracle.employeerecord.repo.EmpRepo;
 import com.oracle.employeerecord.repo.RoleRepo;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+// import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Controller
 @RequestMapping("/employees")
@@ -32,6 +38,15 @@ public class MainController {
 
     @Autowired
     private RoleRepo roleRepo;
+
+    // @Autowired
+    // AuthenticationManager authenticationManager;
+
+    // @Autowired
+    // PasswordEncoder encoder;
+
+    // @Autowired
+    // JwtUtils jwtUtils;
 
     @RequestMapping(path = "/addrole")
     public @ResponseBody String setrole() {
@@ -75,12 +90,12 @@ public class MainController {
                     default:
                         Role empRole = roleRepo.findByName(ERole.EMPLOYEE).get();
                         roles.add(empRole);
-
                 }
-            }
-
-            );
+            });
         }
+        System.out.println("these are the roles assigned");
+        roles.forEach((x -> System.out.println(x.getName())));
+
         e.setRoles(roles);
 
         empRepo.save(e);
@@ -88,26 +103,17 @@ public class MainController {
 
     }
 
-    // @PostMapping(path = "/add")
-    // public @ResponseBody String addNewEmp(@RequestParam String username,
-    // @RequestParam String password, @RequestParam String name) {
-    // System.out.println(username + " " + password);
+    // @PostMapping("/login")
+    // public ResponseEntity<?> authenticateUser(@RequestBody LoginReq loginreq) {
 
-    // Employee e = new Employee();
-    // e.setName(name);
-    // e.setUsername(username);
-    // e.setPassword(password);
+    // Authentication authentication = authenticationManager
+    // .authenticate(new UsernamePasswordAuthenticationToken(loginreq.getUsername(),
+    // loginreq.getPassword()));
 
-    // empRepo.save(e);
+    // SecurityContextHolder.getContext().setAuthentication(authentication);
+    // // String jwt=jwtUtils.generateJwtToken(authentication);
 
-    // return "saved";
     // }
-
-    @RequestMapping("/login")
-    public String login() {
-
-        return "index.html";
-    }
 
     @RequestMapping("/login/auth")
     @ResponseBody
