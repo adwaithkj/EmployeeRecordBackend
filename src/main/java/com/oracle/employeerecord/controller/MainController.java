@@ -1,7 +1,9 @@
 package com.oracle.employeerecord.controller;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +24,19 @@ import com.oracle.employeerecord.model.Employee;
 import com.oracle.employeerecord.model.Role;
 import com.oracle.employeerecord.payload.LoginReq;
 import com.oracle.employeerecord.payload.SignupReq;
+import com.oracle.employeerecord.payload.response.JwtResponse;
+import com.oracle.employeerecord.payload.response.MessageResponse;
 import com.oracle.employeerecord.repo.EmpRepo;
 import com.oracle.employeerecord.repo.RoleRepo;
+import com.oracle.employeerecord.security.jwt.JwtUtils;
+import com.oracle.employeerecord.security.services.UserDetailsImpl;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 // import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Controller
 @RequestMapping("/employees")
@@ -39,14 +47,14 @@ public class MainController {
     @Autowired
     private RoleRepo roleRepo;
 
-    // @Autowired
-    // AuthenticationManager authenticationManager;
+    @Autowired
+    AuthenticationManager authenticationManager;
 
-    // @Autowired
-    // PasswordEncoder encoder;
+    @Autowired
+    PasswordEncoder encoder;
 
-    // @Autowired
-    // JwtUtils jwtUtils;
+    @Autowired
+    JwtUtils jwtUtils;
 
     @RequestMapping(path = "/addrole")
     public @ResponseBody String setrole() {
@@ -58,10 +66,10 @@ public class MainController {
     }
 
     @PostMapping(path = "/signup")
-    public @ResponseBody String signup(@RequestBody SignupReq signupReq) {
+    public ResponseEntity<?> signup(@RequestBody SignupReq signupReq) {
 
         if (empRepo.existsByUsername(signupReq.getUsername())) {
-            return "the user already exists";
+            return ResponseEntity.badRequest().body(new MessageResponse("the username is already taken"));
         }
         Employee e = new Employee();
         e.setName(signupReq.getName());
@@ -99,31 +107,34 @@ public class MainController {
         e.setRoles(roles);
 
         empRepo.save(e);
-        return "signed up";
+        return ResponseEntity.ok(new MessageResponse("user reg successful"));
 
     }
 
-    // @PostMapping("/login")
-    // public ResponseEntity<?> authenticateUser(@RequestBody LoginReq loginreq) {
-
-    // Authentication authentication = authenticationManager
-    // .authenticate(new UsernamePasswordAuthenticationToken(loginreq.getUsername(),
-    // loginreq.getPassword()));
-
-    // SecurityContextHolder.getContext().setAuthentication(authentication);
-    // // String jwt=jwtUtils.generateJwtToken(authentication);
-
-    // }
-
     @RequestMapping("/login/auth")
     @ResponseBody
-    public String auth(@RequestBody LoginReq loginReq) {
+    public ResponseEntity<?> auth(@RequestBody LoginReq loginReq) {
         Assert.notNull(loginReq.getUsername(), "the username must not be empty");
         Assert.notNull(loginReq.getPassword(), "the password must not be empty");
 
-        System.out.println(loginReq.getUsername() + " " + loginReq.getPassword());
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(loginReq.getUsername(), loginReq.getPassword()));
 
-        return "auth successful";
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = jwtUtils.generateJwtToken(authentication);
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new JwtResponse(jwt,
+                userDetails.getId(),
+                userDetails.getUsername(),
+                userDetails.getName(),
+                roles));
     }
 
     @GetMapping(path = "/all")
