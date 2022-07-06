@@ -73,7 +73,7 @@ public class MainController {
         }
         Employee e = new Employee();
         e.setName(signupReq.getName());
-        e.setPassword(signupReq.getPassword());
+        e.setPassword(encoder.encode(signupReq.getPassword()));
         e.setUsername(signupReq.getUsername());
         // System.out.println(signupReq.getRole());
 
