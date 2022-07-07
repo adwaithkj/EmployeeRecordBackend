@@ -8,8 +8,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +34,8 @@ import com.oracle.employeerecord.repo.RoleRepo;
 import com.oracle.employeerecord.security.jwt.JwtUtils;
 import com.oracle.employeerecord.security.services.UserDetailsImpl;
 
+import org.springframework.security.access.expression.SecurityExpressionRoot;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,6 +43,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 // import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @Controller
 @RequestMapping("/employees")
 public class MainController {
@@ -55,15 +61,6 @@ public class MainController {
 
     @Autowired
     JwtUtils jwtUtils;
-
-    @RequestMapping(path = "/addrole")
-    public @ResponseBody String setrole() {
-
-        System.out.println(empRepo.findByUsername("adwaith").get().getPassword());
-
-        return "set";
-
-    }
 
     @PostMapping(path = "/signup")
     public ResponseEntity<?> signup(@RequestBody SignupReq signupReq) {
@@ -137,8 +134,26 @@ public class MainController {
                 roles));
     }
 
+    @GetMapping(path = "/loginpage")
+    public String loginpage(Model model) {
+        model.addAttribute("loginReq", new LoginReq());
+
+        return "index";
+    }
+
+    @PostMapping(path = "/loginpage")
+    public String htmlform(@ModelAttribute LoginReq loginReq, Model model) {
+        // model.addAttribute("loginReq", loginReq);
+
+        ResponseEntity re = auth(loginReq);
+        // System.out.println(re.getClass().);
+        model.addAttribute("response", re);
+        return "response";
+    }
+
     @GetMapping(path = "/all")
     public @ResponseBody Iterable<Employee> getAllEmp() {
+
         return empRepo.findAll();
 
     }

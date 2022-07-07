@@ -7,19 +7,21 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 // import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @Controller
 @RequestMapping("/api/test")
 public class TestController {
     @GetMapping("/all")
-    public String allAccess() {
+    public @ResponseBody String allAccess() {
         return "Public Content.";
     }
 
     @GetMapping("/employee")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public String userAccess() {
+    @PreAuthorize("hasRole('EMPLOYEE') or hasRole('MANAGER') or hasRole('ADMIN')")
+    public @ResponseBody String userAccess() {
+        System.out.println("employee page reached");
         return "User Content.";
     }
 

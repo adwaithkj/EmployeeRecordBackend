@@ -7,23 +7,40 @@
     <script type="text/javascript" src="/script.js"></script>
   </head>
   <body>
-    This is the templates folder
     <div class="login-page">
       <div class="form">
-        <form class="register-form" action="employees/signup">
+        <!-- <form class="register-form" action="employees/signup">
           <input type="text" placeholder="name" />
           <input type="password" placeholder="password" />
           <input type="text" placeholder="email address" />
           <button>create</button>
           <p class="message">Already registered? <a href="#">Sign In</a></p>
-        </form>
-        <form class="login-form" action="login/auth" method="post">
-          <input type="text" placeholder="username" id="username" />
-          <input type="password" placeholder="password" id="password" />
+        </form> -->
+        <form
+          class="login-form"
+          action="#"
+          th:action="@{loginpage}"
+          th:object="${loginReq}"
+          method="post"
+        >
+          <input
+            type="text"
+            placeholder="username"
+            id="username"
+            value="username"
+            th:field="*{username}"
+          />
+          <input
+            type="password"
+            placeholder="password"
+            id="password"
+            value=" username"
+            th:field="*{password}"
+          />
           <button>login</button>
-          <p class="message">
+          <!-- <p class="message">
             Not registered? <a href="#">Create an account</a>
-          </p>
+          </p> -->
         </form>
       </div>
     </div>
